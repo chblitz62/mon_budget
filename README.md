@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="AFERTES" width="300">
+</p>
+
 # Budget Prévisionnel - Protection de l'Enfance
 
 Application web de gestion de budget prévisionnel pour les structures d'accueil dans le secteur de la protection de l'enfance.
@@ -71,4 +75,8 @@ npm run dev
 
 ## Licence
 
-Projet privé - Tous droits réservés
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## Auteur
+
+AFERTES - Formation et accompagnement dans le secteur social et médico-social

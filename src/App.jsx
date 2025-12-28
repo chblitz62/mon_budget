@@ -864,7 +864,7 @@ const BudgetTool = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -883,17 +883,17 @@ const BudgetTool = () => {
               <p className="text-slate-500 text-sm">Protection de l'Enfance - Projection sur 3 ans</p>
             </div>
             <div className="flex gap-3 items-center flex-wrap">
-              <div className="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
-                <span className="text-xs font-bold text-emerald-600 uppercase">Augmentation annuelle</span>
+              <div className="bg-teal-50 px-4 py-2 rounded-xl border border-teal-200">
+                <span className="text-xs font-bold text-teal-600 uppercase">Augmentation annuelle</span>
                 <div className="flex items-center gap-2">
-                  <input 
+                  <input
                     type="number"
                     step="0.1"
-                    className="bg-transparent font-black text-xl text-emerald-700 outline-none w-16"
+                    className="bg-transparent font-black text-xl text-teal-700 outline-none w-16"
                     value={globalParams.augmentationAnnuelle}
                     onChange={(e) => setGlobalParams({...globalParams, augmentationAnnuelle: parseFloat(e.target.value) || 0})}
                   />
-                  <TrendingUp className="text-emerald-400" size={20} />
+                  <TrendingUp className="text-teal-500" size={20} />
                 </div>
               </div>
               
@@ -911,9 +911,9 @@ const BudgetTool = () => {
                 onChange={chargerBudget}
                 className="hidden"
               />
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
-                className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl transition-all"
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl transition-all"
               >
                 <Upload size={18} /> CHARGER
               </button>
@@ -925,9 +925,9 @@ const BudgetTool = () => {
                 <Printer size={18} /> IMPRIMER
               </button>
               
-              <button 
-                onClick={exporterExcelInteractif} 
-                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl transition-all"
+              <button
+                onClick={exporterExcelInteractif}
+                className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl transition-all"
               >
                 <Download size={18} /> EXPORT EXCEL
               </button>
@@ -1027,7 +1027,7 @@ const BudgetTool = () => {
           </div>
 
           {/* BFR */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-lg border-2 border-blue-200 p-6">
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl shadow-lg border-2 border-blue-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-blue-500 p-3 rounded-xl">
                 <TrendingUp className="text-white" size={24} />
@@ -1074,7 +1074,7 @@ const BudgetTool = () => {
                     
                     <div className="bg-white p-3 rounded-xl flex justify-between items-center">
                       <div className="text-sm font-bold text-slate-700">+ Créances clients</div>
-                      <div className="text-lg font-black text-green-600">{Math.round(bfr.creancesClients).toLocaleString()} €</div>
+                      <div className="text-lg font-black text-teal-600">{Math.round(bfr.creancesClients).toLocaleString()} €</div>
                     </div>
                     
                     <div className="bg-white p-3 rounded-xl flex justify-between items-center">
@@ -1083,7 +1083,7 @@ const BudgetTool = () => {
                     </div>
                   </div>
                   
-                  <div className={`p-4 rounded-xl ${bfr.bfr > 0 ? 'bg-gradient-to-r from-red-600 to-orange-600' : 'bg-gradient-to-r from-green-600 to-emerald-600'} text-white`}>
+                  <div className={`p-4 rounded-xl ${bfr.bfr > 0 ? 'bg-gradient-to-r from-red-600 to-orange-600' : 'bg-gradient-to-r from-teal-600 to-cyan-600'} text-white`}>
                     <div className="text-sm font-bold mb-1">BESOIN EN FONDS DE ROULEMENT</div>
                     <div className="flex justify-between items-center">
                       <div>
@@ -1115,10 +1115,10 @@ const BudgetTool = () => {
         {/* Synthèse 3 ans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print-page-break">
           {summary3Ans.map(s => (
-            <div key={s.annee} className="bg-gradient-to-br from-white to-indigo-50 p-6 rounded-3xl shadow-lg border-2 border-indigo-200">
+            <div key={s.annee} className="bg-gradient-to-br from-white to-cyan-50 p-6 rounded-3xl shadow-lg border-2 border-teal-200">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-sm font-black text-indigo-400 uppercase tracking-wider">Année {s.annee}</span>
-                <Calendar className="text-indigo-300" size={22} />
+                <span className="text-sm font-black text-teal-400 uppercase tracking-wider">Année {s.annee}</span>
+                <Calendar className="text-teal-300" size={22} />
               </div>
               <div className="text-3xl font-black text-slate-800 mb-2">
                 {Math.round(s.prixJour)} € <span className="text-base font-medium text-slate-400">/ jour</span>
@@ -1130,14 +1130,14 @@ const BudgetTool = () => {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>dont Direction:</span>
-                  <span className="font-bold text-purple-600">{Math.round(s.budgetDirection).toLocaleString()} €</span>
+                  <span className="font-bold text-slate-600">{Math.round(s.budgetDirection).toLocaleString()} €</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Jours:</span>
                   <span className="font-bold">{Math.round(s.jours).toLocaleString()}</span>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-indigo-200">
+              <div className="mt-4 pt-4 border-t border-teal-200">
                 <div className="text-xs font-black text-slate-600 uppercase mb-3">Détail par lieu</div>
                 <div className="space-y-2">
                   {s.detailsLieux.map(l => (
@@ -1145,7 +1145,7 @@ const BudgetTool = () => {
                       <div className="font-bold text-slate-700 text-sm mb-1">{l.nom}</div>
                       <div className="flex justify-between text-xs text-slate-600">
                         <span>Prix/jour (avec siège):</span>
-                        <span className="font-black text-emerald-700">{Math.round(l.prixJour)} €</span>
+                        <span className="font-black text-teal-700">{Math.round(l.prixJour)} €</span>
                       </div>
                       <div className="flex justify-between text-xs text-slate-500">
                         <span>Part siège ({l.proportionLieu.toFixed(1)}%):</span>
@@ -1168,10 +1168,10 @@ const BudgetTool = () => {
         </div>
 
         {/* Direction & Siège */}
-        <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 text-white rounded-3xl p-8 mb-8 shadow-xl print-page-break">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-700 text-white rounded-3xl p-8 mb-8 shadow-xl print-page-break">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-black flex items-center gap-3">
-              <Building2 className="text-indigo-400" size={28} /> Direction & Siège
+              <Building2 className="text-teal-400" size={28} /> Direction & Siège
             </h2>
             <div className="flex gap-2 no-print">
               <button 
@@ -1185,8 +1185,8 @@ const BudgetTool = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-              <label className="text-xs font-bold text-indigo-300 uppercase block mb-1">Compte 613</label>
-              <label className="text-xs font-bold text-indigo-200 block mb-2">Loyer mensuel</label>
+              <label className="text-xs font-bold text-teal-300 uppercase block mb-1">Compte 613</label>
+              <label className="text-xs font-bold text-teal-200 block mb-2">Loyer mensuel</label>
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
@@ -1194,12 +1194,12 @@ const BudgetTool = () => {
                   value={direction.loyer}
                   onChange={(e) => setDirection({...direction, loyer: parseInt(e.target.value) || 0})}
                 />
-                <DollarSign className="text-indigo-300" size={20} />
+                <DollarSign className="text-teal-300" size={20} />
               </div>
             </div>
             <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-              <label className="text-xs font-bold text-indigo-300 uppercase block mb-1">Compte 614</label>
-              <label className="text-xs font-bold text-indigo-200 block mb-2">Charges mensuelles</label>
+              <label className="text-xs font-bold text-teal-300 uppercase block mb-1">Compte 614</label>
+              <label className="text-xs font-bold text-teal-200 block mb-2">Charges mensuelles</label>
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
@@ -1207,12 +1207,12 @@ const BudgetTool = () => {
                   value={direction.charges}
                   onChange={(e) => setDirection({...direction, charges: parseInt(e.target.value) || 0})}
                 />
-                <DollarSign className="text-indigo-300" size={20} />
+                <DollarSign className="text-teal-300" size={20} />
               </div>
             </div>
             <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-              <label className="text-xs font-bold text-indigo-300 uppercase block mb-1">Compte 606</label>
-              <label className="text-xs font-bold text-indigo-200 block mb-2">Autres charges</label>
+              <label className="text-xs font-bold text-teal-300 uppercase block mb-1">Compte 606</label>
+              <label className="text-xs font-bold text-teal-200 block mb-2">Autres charges</label>
               <div className="flex items-center gap-2">
                 <input 
                   type="number"
@@ -1220,7 +1220,7 @@ const BudgetTool = () => {
                   value={direction.autresCharges}
                   onChange={(e) => setDirection({...direction, autresCharges: parseInt(e.target.value) || 0})}
                 />
-                <DollarSign className="text-indigo-300" size={20} />
+                <DollarSign className="text-teal-300" size={20} />
               </div>
             </div>
           </div>
@@ -1234,7 +1234,7 @@ const BudgetTool = () => {
                 >
                   <Trash2 size={14} />
                 </button>
-                <div className="text-[9px] font-bold text-indigo-300 mb-2">Compte 641</div>
+                <div className="text-[9px] font-bold text-teal-300 mb-2">Compte 641</div>
                 <input 
                   className="bg-transparent font-bold text-sm border-b border-white/30 w-full mb-3 outline-none pb-1"
                   value={p.titre}
@@ -1276,7 +1276,7 @@ const BudgetTool = () => {
           
           <div className="mt-6 pt-6 border-t border-white/20">
             <div className="text-right">
-              <span className="text-sm text-indigo-300">Budget Direction Annuel:</span>
+              <span className="text-sm text-teal-300">Budget Direction Annuel:</span>
               <span className="text-2xl font-black ml-3">{Math.round(calculerBudgetDirection().total).toLocaleString()} €</span>
             </div>
           </div>
@@ -1302,18 +1302,18 @@ const BudgetTool = () => {
                 <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
                   <div className="flex items-center gap-4">
                     <input 
-                      className="text-2xl font-black text-slate-800 outline-none border-b-2 border-transparent focus:border-indigo-500 transition-all"
+                      className="text-2xl font-black text-slate-800 outline-none border-b-2 border-transparent focus:border-teal-500 transition-all"
                       value={lieu.nom}
                       onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, nom: e.target.value} : l))}
                     />
                     <div className="flex gap-2 flex-wrap">
-                      <span className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+                      <span className="bg-teal-100 text-teal-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
                         {Math.round(prixJourAvecSiege)} € / jour
                       </span>
-                      <span className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+                      <span className="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
                         {Math.round(budgetAvecSiege).toLocaleString()} € / an
                       </span>
-                      <span className="bg-purple-100 text-purple-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm">
+                      <span className="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm">
                         Siège: {Math.round(partSiege).toLocaleString()} € ({(proportionLieu * 100).toFixed(1)}%)
                       </span>
                     </div>
@@ -1327,7 +1327,7 @@ const BudgetTool = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-200">
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-2xl border border-blue-200">
                     <label className="text-xs font-black text-blue-600 uppercase block mb-2">Nombre d'enfants</label>
                     <input 
                       type="number"
@@ -1336,11 +1336,11 @@ const BudgetTool = () => {
                       onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, enfantsParLieu: parseInt(e.target.value) || 0} : l))}
                     />
                   </div>
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border border-purple-200">
-                    <label className="text-xs font-black text-purple-600 uppercase block mb-2">Taux d'occupation (%)</label>
+                  <div className="bg-gradient-to-r from-teal-50 to-pink-50 p-4 rounded-2xl border border-teal-200">
+                    <label className="text-xs font-black text-slate-600 uppercase block mb-2">Taux d'occupation (%)</label>
                     <input 
                       type="number"
-                      className="bg-white text-purple-700 font-black text-2xl px-4 py-2 rounded-xl w-full outline-none shadow-sm"
+                      className="bg-white text-slate-700 font-black text-2xl px-4 py-2 rounded-xl w-full outline-none shadow-sm"
                       value={lieu.tauxRemplissage}
                       onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, tauxRemplissage: parseFloat(e.target.value) || 0} : l))}
                     />
@@ -1361,7 +1361,7 @@ const BudgetTool = () => {
                           <div key={key} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
                             <div className="flex justify-between items-center mb-2">
                               <div>
-                                <div className="text-[9px] font-bold text-indigo-600 uppercase">Compte {compteInfo.compte}</div>
+                                <div className="text-[9px] font-bold text-teal-600 uppercase">Compte {compteInfo.compte}</div>
                                 <div className="text-xs font-bold text-slate-700">{compteInfo.libelle}</div>
                               </div>
                             </div>
@@ -1397,9 +1397,9 @@ const BudgetTool = () => {
                             </div>
                             {calc.mensualite > 0 && (
                               <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
-                                <div className="flex items-center justify-between bg-indigo-50 px-2 py-1 rounded">
-                                  <span className="text-[10px] font-bold text-indigo-700">💳 Mensualité:</span>
-                                  <span className="font-black text-indigo-700 text-sm">{Math.round(calc.mensualite)} €/mois</span>
+                                <div className="flex items-center justify-between bg-teal-50 px-2 py-1 rounded">
+                                  <span className="text-[10px] font-bold text-slate-700">💳 Mensualité:</span>
+                                  <span className="font-black text-slate-700 text-sm">{Math.round(calc.mensualite)} €/mois</span>
                                 </div>
                                 <div className="flex justify-between text-[10px]">
                                   <span className="text-slate-600">Coût crédit:</span>
@@ -1420,15 +1420,15 @@ const BudgetTool = () => {
                         <span className="text-slate-600">Intérêts/an:</span>
                         <span className="text-red-600">{Math.round(budgetLieu.interets).toLocaleString()} €</span>
                       </div>
-                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-xl border-2 border-indigo-200 mt-3">
+                      <div className="bg-gradient-to-r from-slate-50 to-cyan-50 p-3 rounded-xl border-2 border-teal-200 mt-3">
                         <div className="flex justify-between items-center">
                           <div>
-                            <div className="text-[10px] font-bold text-indigo-600 uppercase">Total mensualités</div>
+                            <div className="text-[10px] font-bold text-teal-600 uppercase">Total mensualités</div>
                             <div className="text-[9px] text-slate-500">Tous prêts confondus</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-black text-indigo-700">{Math.round(Object.values(budgetLieu.detailsInvest).reduce((sum, d) => sum + d.mensualite, 0)).toLocaleString()}</div>
-                            <div className="text-xs font-bold text-indigo-600">€ / mois</div>
+                            <div className="text-xl font-black text-slate-700">{Math.round(Object.values(budgetLieu.detailsInvest).reduce((sum, d) => sum + d.mensualite, 0)).toLocaleString()}</div>
+                            <div className="text-xs font-bold text-teal-600">€ / mois</div>
                           </div>
                         </div>
                       </div>
@@ -1436,14 +1436,14 @@ const BudgetTool = () => {
                   </div>
 
                   {/* Exploitation */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-3xl border border-emerald-200">
+                  <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-6 rounded-3xl border border-teal-200">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-sm font-black text-emerald-700 uppercase flex items-center gap-2">
+                      <h3 className="text-sm font-black text-teal-700 uppercase flex items-center gap-2">
                         <Settings size={18} /> Exploitation (mensuel)
                       </h3>
                       <button 
                         onClick={() => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, exploitation: [...l.exploitation, { id: Date.now(), nom: 'Nouveau poste', montant: 0 }]} : l))}
-                        className="bg-emerald-600 text-white p-1.5 rounded-lg hover:bg-emerald-700 transition-all shadow-sm no-print"
+                        className="bg-teal-600 text-white p-1.5 rounded-lg hover:bg-teal-700 transition-all shadow-sm no-print"
                       >
                         <Plus size={16} />
                       </button>
@@ -1460,16 +1460,16 @@ const BudgetTool = () => {
                               <Trash2 size={10} />
                             </button>
                             <div className="flex-1">
-                              <div className="text-[9px] font-bold text-emerald-600 mb-1">Compte {numCompte}</div>
+                              <div className="text-[9px] font-bold text-teal-600 mb-1">Compte {numCompte}</div>
                               <input 
-                                className="w-full text-xs font-bold text-slate-600 bg-transparent outline-none border-b border-emerald-100 pb-1"
+                                className="w-full text-xs font-bold text-slate-600 bg-transparent outline-none border-b border-teal-100 pb-1"
                                 value={item.nom}
                                 onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, exploitation: l.exploitation.map(exp => exp.id === item.id ? {...exp, nom: e.target.value} : exp)} : l))}
                               />
                             </div>
                             <input 
                               type="number"
-                              className="w-24 text-right text-xs font-black bg-emerald-50 rounded-lg px-2 py-1 outline-none"
+                              className="w-24 text-right text-xs font-black bg-teal-50 rounded-lg px-2 py-1 outline-none"
                               value={item.montant}
                               onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, exploitation: l.exploitation.map(exp => exp.id === item.id ? {...exp, montant: parseInt(e.target.value) || 0} : exp)} : l))}
                             />
@@ -1478,39 +1478,39 @@ const BudgetTool = () => {
                         );
                       })}
                     </div>
-                    <div className="mt-4 pt-4 border-t border-emerald-200">
+                    <div className="mt-4 pt-4 border-t border-teal-200">
                       <div className="flex justify-between text-sm font-bold">
-                        <span className="text-emerald-700">Total/an:</span>
-                        <span className="text-emerald-800">{Math.round(budgetLieu.exploitation).toLocaleString()} €</span>
+                        <span className="text-teal-700">Total/an:</span>
+                        <span className="text-teal-800">{Math.round(budgetLieu.exploitation).toLocaleString()} €</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Équipe */}
-                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-3xl border border-indigo-200">
+                  <div className="bg-gradient-to-br from-slate-50 to-cyan-50 p-6 rounded-3xl border border-teal-200">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-sm font-black text-indigo-700 uppercase flex items-center gap-2">
+                      <h3 className="text-sm font-black text-slate-700 uppercase flex items-center gap-2">
                         <Users size={18} /> Équipe
                       </h3>
                       <button 
                         onClick={() => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, personnel: [...l.personnel, { id: Date.now(), titre: 'Nouveau', etp: 1, salaire: 2000, segur: true }]} : l))}
-                        className="bg-indigo-600 text-white p-1.5 rounded-lg hover:bg-indigo-700 transition-all shadow-sm no-print"
+                        className="bg-slate-700 text-white p-1.5 rounded-lg hover:bg-slate-800 transition-all shadow-sm no-print"
                       >
                         <Plus size={16} />
                       </button>
                     </div>
                     <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2">
                       {lieu.personnel.map(p => (
-                        <div key={p.id} className="bg-white p-3 rounded-xl shadow-sm border border-indigo-100 group relative hover:shadow-md transition-all">
+                        <div key={p.id} className="bg-white p-3 rounded-xl shadow-sm border border-teal-100 group relative hover:shadow-md transition-all">
                           <button 
                             onClick={() => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.filter(per => per.id !== p.id)} : l))}
                             className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity no-print"
                           >
                             <Trash2 size={10} />
                           </button>
-                          <div className="text-[9px] font-bold text-indigo-600 mb-1">Compte 641</div>
+                          <div className="text-[9px] font-bold text-teal-600 mb-1">Compte 641</div>
                           <input 
-                            className="font-bold text-sm w-full mb-2 outline-none border-b border-indigo-100 pb-1" 
+                            className="font-bold text-sm w-full mb-2 outline-none border-b border-teal-100 pb-1" 
                             value={p.titre} 
                             onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, titre: e.target.value} : per)} : l))}
                           />
@@ -1520,7 +1520,7 @@ const BudgetTool = () => {
                               <input 
                                 type="number" 
                                 step="0.1" 
-                                className="w-full bg-indigo-50 rounded px-2 py-1 font-bold" 
+                                className="w-full bg-teal-50 rounded px-2 py-1 font-bold" 
                                 value={p.etp} 
                                 onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, etp: parseFloat(e.target.value) || 0} : per)} : l))}
                               />
@@ -1529,7 +1529,7 @@ const BudgetTool = () => {
                               <label className="text-[9px] text-slate-500 block">Salaire</label>
                               <input 
                                 type="number" 
-                                className="w-full bg-indigo-50 rounded px-2 py-1 font-bold" 
+                                className="w-full bg-teal-50 rounded px-2 py-1 font-bold" 
                                 value={p.salaire} 
                                 onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, salaire: parseInt(e.target.value) || 0} : per)} : l))}
                               />
@@ -1547,10 +1547,10 @@ const BudgetTool = () => {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 pt-4 border-t border-indigo-200">
+                    <div className="mt-4 pt-4 border-t border-teal-200">
                       <div className="flex justify-between text-sm font-bold">
-                        <span className="text-indigo-700">Masse salariale:</span>
-                        <span className="text-indigo-800">{Math.round(budgetLieu.salaires).toLocaleString()} €</span>
+                        <span className="text-slate-700">Masse salariale:</span>
+                        <span className="text-slate-800">{Math.round(budgetLieu.salaires).toLocaleString()} €</span>
                       </div>
                     </div>
                   </div>
@@ -1572,7 +1572,7 @@ const BudgetTool = () => {
             };
             setLieux([...lieux, nouveauLieu]);
           }}
-          className="w-full mt-8 py-5 border-2 border-dashed border-indigo-300 rounded-3xl text-indigo-500 font-black text-lg hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:border-indigo-400 transition-all flex items-center justify-center gap-3 shadow-sm no-print"
+          className="w-full mt-8 py-5 border-2 border-dashed border-teal-300 rounded-3xl text-teal-500 font-black text-lg hover:bg-gradient-to-r hover:from-slate-50 hover:to-cyan-50 hover:border-teal-400 transition-all flex items-center justify-center gap-3 shadow-sm no-print"
         >
           <Plus size={24} /> AJOUTER UN NOUVEAU LIEU DE VIE
         </button>
