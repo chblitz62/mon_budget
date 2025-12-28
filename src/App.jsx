@@ -878,9 +878,12 @@ const BudgetTool = () => {
         {/* HEADER */}
         <div className="bg-white rounded-3xl shadow-lg border p-6 mb-6 no-print">
           <div className="flex flex-wrap justify-between items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-black text-slate-800">Budget Prévisionnel</h1>
-              <p className="text-slate-500 text-sm">Protection de l'Enfance - Projection sur 3 ans</p>
+            <div className="flex items-center gap-4">
+              <img src="/logo.png" alt="AFERTES" className="h-12" />
+              <div>
+                <h1 className="text-3xl font-black text-slate-800">Budget Prévisionnel</h1>
+                <p className="text-slate-500 text-sm">Protection de l'Enfance - Projection sur 3 ans</p>
+              </div>
             </div>
             <div className="flex gap-3 items-center flex-wrap">
               <div className="bg-teal-50 px-4 py-2 rounded-xl border border-teal-200">
