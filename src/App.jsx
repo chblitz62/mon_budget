@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, DollarSign, Save, Upload, Printer } from 'lucide-react';
+import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, DollarSign, Save, Upload, Printer, Moon, Sun } from 'lucide-react';
 
 // Valeurs par défaut
 const defaultGlobalParams = {
@@ -77,6 +77,9 @@ const BudgetTool = () => {
   const [direction, setDirection] = useState(() => loadFromStorage('budget_direction', defaultDirection));
   const [lieux, setLieux] = useState(() => loadFromStorage('budget_lieux', defaultLieux));
 
+  // Mode sombre persistant
+  const [darkMode, setDarkMode] = useState(() => loadFromStorage('budget_darkMode', false));
+
   // Sauvegarde automatique dans localStorage
   useEffect(() => {
     localStorage.setItem('budget_globalParams', JSON.stringify(globalParams));
@@ -89,6 +92,10 @@ const BudgetTool = () => {
   useEffect(() => {
     localStorage.setItem('budget_lieux', JSON.stringify(lieux));
   }, [lieux]);
+
+  useEffect(() => {
+    localStorage.setItem('budget_darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
 
   // Fonctions de validation des champs numériques
   const validerNombre = (valeur, min = 0, max = Infinity) => {
@@ -979,7 +986,7 @@ const BudgetTool = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+    <div className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-slate-50 to-slate-100'}`}>
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -987,31 +994,39 @@ const BudgetTool = () => {
           .print-page-break { page-break-after: always; }
         }
       `}</style>
-      
+
       <div className="max-w-7xl mx-auto">
-        
+
         {/* HEADER */}
-        <div className="bg-white rounded-3xl shadow-lg border p-6 mb-6 no-print">
+        <div className={`rounded-3xl shadow-lg border p-6 mb-6 no-print transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <div className="flex flex-wrap justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <img src="/logo.png" alt="AFERTES" className="h-12" />
+              <img src="/logo.png" alt="AFERTES" className={`h-12 ${darkMode ? 'brightness-200' : ''}`} />
               <div>
-                <h1 className="text-3xl font-black text-slate-800">Budget Prévisionnel</h1>
-                <p className="text-slate-500 text-sm">Protection de l'Enfance - Projection sur 3 ans</p>
+                <h1 className={`text-3xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>Budget Prévisionnel</h1>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Protection de l'Enfance - Projection sur 3 ans</p>
               </div>
             </div>
             <div className="flex gap-3 items-center flex-wrap">
-              <div className="bg-teal-50 px-4 py-2 rounded-xl border border-teal-200">
-                <span className="text-xs font-bold text-teal-600 uppercase">Augmentation annuelle</span>
+              {/* Bouton Mode Sombre */}
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl transition-all ${darkMode ? 'bg-yellow-500 text-gray-900' : 'bg-gray-800 text-white'}`}
+                title={darkMode ? 'Mode clair' : 'Mode sombre'}
+              >
+                {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              <div className={`px-4 py-2 rounded-xl border ${darkMode ? 'bg-teal-900/30 border-teal-700' : 'bg-teal-50 border-teal-200'}`}>
+                <span className={`text-xs font-bold uppercase ${darkMode ? 'text-teal-400' : 'text-teal-600'}`}>Augmentation annuelle</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     step="0.1"
-                    className="bg-transparent font-black text-xl text-teal-700 outline-none w-16"
+                    className={`bg-transparent font-black text-xl outline-none w-16 ${darkMode ? 'text-teal-300' : 'text-teal-700'}`}
                     value={globalParams.augmentationAnnuelle}
                     onChange={(e) => setGlobalParams({...globalParams, augmentationAnnuelle: validerTaux(e.target.value)})}
                   />
-                  <TrendingUp className="text-teal-500" size={20} />
+                  <TrendingUp className={darkMode ? 'text-teal-400' : 'text-teal-500'} size={20} />
                 </div>
               </div>
               
@@ -1056,14 +1071,14 @@ const BudgetTool = () => {
         {/* Provisions et BFR */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Provisions pour charges */}
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl shadow-lg border-2 border-orange-200 p-6">
+          <div className={`rounded-3xl shadow-lg border-2 p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-orange-900' : 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-200'}`}>
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-orange-500 p-3 rounded-xl">
                 <Settings className="text-white" size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-orange-900">Provisions pour Charges</h2>
-                <p className="text-xs text-orange-700">Comptes 15x - Anticipation des risques</p>
+                <h2 className={`text-xl font-black ${darkMode ? 'text-orange-400' : 'text-orange-900'}`}>Provisions pour Charges</h2>
+                <p className={`text-xs ${darkMode ? 'text-orange-300' : 'text-orange-700'}`}>Comptes 15x - Anticipation des risques</p>
               </div>
             </div>
             
@@ -1145,14 +1160,14 @@ const BudgetTool = () => {
           </div>
 
           {/* BFR */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl shadow-lg border-2 border-blue-200 p-6">
+          <div className={`rounded-3xl shadow-lg border-2 p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-blue-900' : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200'}`}>
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-blue-500 p-3 rounded-xl">
                 <TrendingUp className="text-white" size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-blue-900">Besoin en Fonds de Roulement</h2>
-                <p className="text-xs text-blue-700">Trésorerie nécessaire pour l'activité</p>
+                <h2 className={`text-xl font-black ${darkMode ? 'text-blue-400' : 'text-blue-900'}`}>Besoin en Fonds de Roulement</h2>
+                <p className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>Trésorerie nécessaire pour l'activité</p>
               </div>
             </div>
             
@@ -1233,47 +1248,47 @@ const BudgetTool = () => {
         {/* Synthèse 3 ans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print-page-break">
           {summary3Ans.map(s => (
-            <div key={s.annee} className="bg-gradient-to-br from-white to-cyan-50 p-6 rounded-3xl shadow-lg border-2 border-teal-200">
+            <div key={s.annee} className={`p-6 rounded-3xl shadow-lg border-2 transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-br from-white to-cyan-50 border-teal-200'}`}>
               <div className="flex justify-between items-center mb-4">
-                <span className="text-sm font-black text-teal-400 uppercase tracking-wider">Année {s.annee}</span>
-                <Calendar className="text-teal-300" size={22} />
+                <span className={`text-sm font-black uppercase tracking-wider ${darkMode ? 'text-teal-400' : 'text-teal-400'}`}>Année {s.annee}</span>
+                <Calendar className={darkMode ? 'text-teal-500' : 'text-teal-300'} size={22} />
               </div>
-              <div className="text-3xl font-black text-slate-800 mb-2">
-                {Math.round(s.prixJour)} € <span className="text-base font-medium text-slate-400">/ jour</span>
+              <div className={`text-3xl font-black mb-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                {Math.round(s.prixJour)} € <span className={`text-base font-medium ${darkMode ? 'text-gray-400' : 'text-slate-400'}`}>/ jour</span>
               </div>
-              <div className="text-sm text-slate-600 space-y-1 mb-4">
+              <div className={`text-sm space-y-1 mb-4 ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>
                 <div className="flex justify-between">
                   <span>Budget Total:</span>
                   <span className="font-bold">{Math.round(s.total).toLocaleString()} €</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>dont Direction:</span>
-                  <span className="font-bold text-slate-600">{Math.round(s.budgetDirection).toLocaleString()} €</span>
+                  <span className={`font-bold ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>{Math.round(s.budgetDirection).toLocaleString()} €</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Jours:</span>
                   <span className="font-bold">{Math.round(s.jours).toLocaleString()}</span>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-teal-200">
-                <div className="text-xs font-black text-slate-600 uppercase mb-3">Détail par lieu</div>
+              <div className={`mt-4 pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-teal-200'}`}>
+                <div className={`text-xs font-black uppercase mb-3 ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>Détail par lieu</div>
                 <div className="space-y-2">
                   {s.detailsLieux.map(l => (
-                    <div key={l.nom} className="bg-white/60 p-2 rounded-lg">
-                      <div className="font-bold text-slate-700 text-sm mb-1">{l.nom}</div>
-                      <div className="flex justify-between text-xs text-slate-600">
+                    <div key={l.nom} className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-white/60'}`}>
+                      <div className={`font-bold text-sm mb-1 ${darkMode ? 'text-gray-200' : 'text-slate-700'}`}>{l.nom}</div>
+                      <div className={`flex justify-between text-xs ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>
                         <span>Prix/jour (avec siège):</span>
-                        <span className="font-black text-teal-700">{Math.round(l.prixJour)} €</span>
+                        <span className={`font-black ${darkMode ? 'text-teal-400' : 'text-teal-700'}`}>{Math.round(l.prixJour)} €</span>
                       </div>
-                      <div className="flex justify-between text-xs text-slate-500">
+                      <div className={`flex justify-between text-xs ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
                         <span>Part siège ({l.proportionLieu.toFixed(1)}%):</span>
                         <span className="font-bold">{Math.round(l.partSiege).toLocaleString()} €</span>
                       </div>
-                      <div className="flex justify-between text-xs text-slate-600">
+                      <div className={`flex justify-between text-xs ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>
                         <span>Budget total:</span>
                         <span className="font-bold">{Math.round(l.budget).toLocaleString()} €</span>
                       </div>
-                      <div className="flex justify-between text-xs text-slate-600">
+                      <div className={`flex justify-between text-xs ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>
                         <span>Jours:</span>
                         <span className="font-bold">{Math.round(l.jours).toLocaleString()}</span>
                       </div>
