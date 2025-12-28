@@ -90,6 +90,26 @@ const BudgetTool = () => {
     localStorage.setItem('budget_lieux', JSON.stringify(lieux));
   }, [lieux]);
 
+  // Fonctions de validation des champs numériques
+  const validerNombre = (valeur, min = 0, max = Infinity) => {
+    const num = parseFloat(valeur);
+    if (isNaN(num)) return min;
+    return Math.min(Math.max(num, min), max);
+  };
+
+  const validerEntier = (valeur, min = 0, max = Infinity) => {
+    const num = parseInt(valeur);
+    if (isNaN(num)) return min;
+    return Math.min(Math.max(num, min), max);
+  };
+
+  const validerTaux = (valeur) => validerNombre(valeur, 0, 100);
+  const validerETP = (valeur) => validerNombre(valeur, 0, 50);
+  const validerSalaire = (valeur) => validerEntier(valeur, 0, 50000);
+  const validerMontant = (valeur) => validerEntier(valeur, 0, 10000000);
+  const validerDuree = (valeur) => validerEntier(valeur, 1, 50);
+  const validerJours = (valeur) => validerEntier(valeur, 0, 365);
+
   const CHARGES_PATRONALES = 0.42;
   const PRIME_SEGUR = 238;
   const JOURS_ANNEE = 365;
@@ -920,7 +940,7 @@ const BudgetTool = () => {
                     step="0.1"
                     className="bg-transparent font-black text-xl text-teal-700 outline-none w-16"
                     value={globalParams.augmentationAnnuelle}
-                    onChange={(e) => setGlobalParams({...globalParams, augmentationAnnuelle: parseFloat(e.target.value) || 0})}
+                    onChange={(e) => setGlobalParams({...globalParams, augmentationAnnuelle: validerTaux(e.target.value)})}
                   />
                   <TrendingUp className="text-teal-500" size={20} />
                 </div>
@@ -993,7 +1013,7 @@ const BudgetTool = () => {
                             step="0.5"
                             className="w-16 bg-orange-50 rounded px-2 py-1 font-bold text-center"
                             value={globalParams.tauxProvisionCongesPayes}
-                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionCongesPayes: parseFloat(e.target.value) || 0})}
+                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionCongesPayes: validerTaux(e.target.value)})}
                           />
                           % de la masse salariale
                         </div>
@@ -1013,7 +1033,7 @@ const BudgetTool = () => {
                             step="0.5"
                             className="w-16 bg-orange-50 rounded px-2 py-1 font-bold text-center"
                             value={globalParams.tauxProvisionGrossesReparations}
-                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionGrossesReparations: parseFloat(e.target.value) || 0})}
+                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionGrossesReparations: validerTaux(e.target.value)})}
                           />
                           % des immobilisations
                         </div>
@@ -1033,7 +1053,7 @@ const BudgetTool = () => {
                             step="0.1"
                             className="w-16 bg-orange-50 rounded px-2 py-1 font-bold text-center"
                             value={globalParams.tauxProvisionCreancesDouteuses}
-                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionCreancesDouteuses: parseFloat(e.target.value) || 0})}
+                            onChange={(e) => setGlobalParams({...globalParams, tauxProvisionCreancesDouteuses: validerTaux(e.target.value)})}
                           />
                           % du chiffre d'affaires
                         </div>
@@ -1081,7 +1101,7 @@ const BudgetTool = () => {
                             type="number"
                             className="w-full bg-blue-50 rounded px-3 py-2 font-bold text-center"
                             value={globalParams.delaiPaiementClients}
-                            onChange={(e) => setGlobalParams({...globalParams, delaiPaiementClients: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setGlobalParams({...globalParams, delaiPaiementClients: validerJours(e.target.value)})}
                           />
                         </div>
                         <div>
@@ -1090,7 +1110,7 @@ const BudgetTool = () => {
                             type="number"
                             className="w-full bg-blue-50 rounded px-3 py-2 font-bold text-center"
                             value={globalParams.delaiPaiementFournisseurs}
-                            onChange={(e) => setGlobalParams({...globalParams, delaiPaiementFournisseurs: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setGlobalParams({...globalParams, delaiPaiementFournisseurs: validerJours(e.target.value)})}
                           />
                         </div>
                       </div>
@@ -1221,7 +1241,7 @@ const BudgetTool = () => {
                   type="number"
                   className="bg-white/20 text-white font-bold text-lg px-3 py-2 rounded-lg w-full outline-none"
                   value={direction.loyer}
-                  onChange={(e) => setDirection({...direction, loyer: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setDirection({...direction, loyer: validerMontant(e.target.value)})}
                 />
                 <DollarSign className="text-teal-300" size={20} />
               </div>
@@ -1234,7 +1254,7 @@ const BudgetTool = () => {
                   type="number"
                   className="bg-white/20 text-white font-bold text-lg px-3 py-2 rounded-lg w-full outline-none"
                   value={direction.charges}
-                  onChange={(e) => setDirection({...direction, charges: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setDirection({...direction, charges: validerMontant(e.target.value)})}
                 />
                 <DollarSign className="text-teal-300" size={20} />
               </div>
@@ -1247,7 +1267,7 @@ const BudgetTool = () => {
                   type="number"
                   className="bg-white/20 text-white font-bold text-lg px-3 py-2 rounded-lg w-full outline-none"
                   value={direction.autresCharges}
-                  onChange={(e) => setDirection({...direction, autresCharges: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setDirection({...direction, autresCharges: validerMontant(e.target.value)})}
                 />
                 <DollarSign className="text-teal-300" size={20} />
               </div>
@@ -1277,7 +1297,7 @@ const BudgetTool = () => {
                       step="0.1" 
                       className="bg-white/20 w-16 rounded px-2 py-1 text-center font-bold" 
                       value={p.etp} 
-                      onChange={(e) => setDirection({...direction, personnel: direction.personnel.map(per => per.id === p.id ? {...per, etp: parseFloat(e.target.value) || 0} : per)})}
+                      onChange={(e) => setDirection({...direction, personnel: direction.personnel.map(per => per.id === p.id ? {...per, etp: validerETP(e.target.value)} : per)})}
                     />
                   </div>
                   <div className="flex justify-between items-center">
@@ -1286,7 +1306,7 @@ const BudgetTool = () => {
                       type="number" 
                       className="bg-white/20 w-20 rounded px-2 py-1 text-center font-bold" 
                       value={p.salaire} 
-                      onChange={(e) => setDirection({...direction, personnel: direction.personnel.map(per => per.id === p.id ? {...per, salaire: parseInt(e.target.value) || 0} : per)})}
+                      onChange={(e) => setDirection({...direction, personnel: direction.personnel.map(per => per.id === p.id ? {...per, salaire: validerSalaire(e.target.value)} : per)})}
                     />
                   </div>
                   <div className="flex justify-between items-center">
@@ -1362,7 +1382,7 @@ const BudgetTool = () => {
                       type="number"
                       className="bg-white text-blue-700 font-black text-2xl px-4 py-2 rounded-xl w-full outline-none shadow-sm"
                       value={lieu.enfantsParLieu}
-                      onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, enfantsParLieu: parseInt(e.target.value) || 0} : l))}
+                      onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, enfantsParLieu: validerEntier(e.target.value, 1, 20)} : l))}
                     />
                   </div>
                   <div className="bg-gradient-to-r from-teal-50 to-pink-50 p-4 rounded-2xl border border-teal-200">
@@ -1371,7 +1391,7 @@ const BudgetTool = () => {
                       type="number"
                       className="bg-white text-slate-700 font-black text-2xl px-4 py-2 rounded-xl w-full outline-none shadow-sm"
                       value={lieu.tauxRemplissage}
-                      onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, tauxRemplissage: parseFloat(e.target.value) || 0} : l))}
+                      onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, tauxRemplissage: validerTaux(e.target.value)} : l))}
                     />
                   </div>
                 </div>
@@ -1401,7 +1421,7 @@ const BudgetTool = () => {
                                   type="number"
                                   className="w-full text-xs font-bold bg-slate-50 rounded px-2 py-1 outline-none"
                                   value={inv.montant}
-                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, montant: parseInt(e.target.value) || 0}}} : l))}
+                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, montant: validerMontant(e.target.value)}}} : l))}
                                 />
                               </div>
                               <div>
@@ -1410,7 +1430,7 @@ const BudgetTool = () => {
                                   type="number"
                                   className="w-full text-xs font-bold bg-slate-50 rounded px-2 py-1 outline-none"
                                   value={inv.duree}
-                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, duree: parseInt(e.target.value) || 0}}} : l))}
+                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, duree: validerDuree(e.target.value)}}} : l))}
                                 />
                               </div>
                               <div>
@@ -1420,7 +1440,7 @@ const BudgetTool = () => {
                                   step="0.1"
                                   className="w-full text-xs font-bold bg-slate-50 rounded px-2 py-1 outline-none"
                                   value={inv.taux}
-                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, taux: parseFloat(e.target.value) || 0}}} : l))}
+                                  onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, investissements: {...l.investissements, [key]: {...inv, taux: validerTaux(e.target.value)}}} : l))}
                                 />
                               </div>
                             </div>
@@ -1500,7 +1520,7 @@ const BudgetTool = () => {
                               type="number"
                               className="w-24 text-right text-xs font-black bg-teal-50 rounded-lg px-2 py-1 outline-none"
                               value={item.montant}
-                              onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, exploitation: l.exploitation.map(exp => exp.id === item.id ? {...exp, montant: parseInt(e.target.value) || 0} : exp)} : l))}
+                              onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? { ...l, exploitation: l.exploitation.map(exp => exp.id === item.id ? {...exp, montant: validerMontant(e.target.value)} : exp)} : l))}
                             />
                             <span className="text-xs text-slate-400">€/mois</span>
                           </div>
@@ -1551,7 +1571,7 @@ const BudgetTool = () => {
                                 step="0.1" 
                                 className="w-full bg-teal-50 rounded px-2 py-1 font-bold" 
                                 value={p.etp} 
-                                onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, etp: parseFloat(e.target.value) || 0} : per)} : l))}
+                                onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, etp: validerETP(e.target.value)} : per)} : l))}
                               />
                             </div>
                             <div>
@@ -1560,7 +1580,7 @@ const BudgetTool = () => {
                                 type="number" 
                                 className="w-full bg-teal-50 rounded px-2 py-1 font-bold" 
                                 value={p.salaire} 
-                                onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, salaire: parseInt(e.target.value) || 0} : per)} : l))}
+                                onChange={(e) => setLieux(lieux.map(l => l.id === lieu.id ? {...l, personnel: l.personnel.map(per => per.id === p.id ? {...per, salaire: validerSalaire(e.target.value)} : per)} : l))}
                               />
                             </div>
                           </div>
