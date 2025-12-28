@@ -6,6 +6,8 @@
 
 Application web de gestion de budget prévisionnel pour les structures d'accueil dans le secteur de la protection de l'enfance.
 
+**[Accéder à l'application](https://mon-budget-kappa.vercel.app)**
+
 ## Fonctionnalités
 
 ### Gestion budgétaire
