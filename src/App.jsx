@@ -1,68 +1,94 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, DollarSign, Save, Upload, Printer } from 'lucide-react';
+
+// Valeurs par défaut
+const defaultGlobalParams = {
+  augmentationAnnuelle: 2.5,
+  tauxProvisionCongesPayes: 10,
+  tauxProvisionGrossesReparations: 2,
+  tauxProvisionCreancesDouteuses: 1,
+  delaiPaiementClients: 30,
+  delaiPaiementFournisseurs: 30
+};
+
+const defaultDirection = {
+  personnel: [
+    { id: 1, titre: 'Directeur', etp: 1, salaire: 4500, segur: true },
+    { id: 2, titre: 'Chef de Service', etp: 2, salaire: 3500, segur: true },
+    { id: 3, titre: 'Secrétariat', etp: 2, salaire: 2400, segur: true },
+    { id: 4, titre: 'Agent accueil', etp: 1, salaire: 2500, segur: true },
+    { id: 5, titre: 'Comptable', etp: 1, salaire: 2400, segur: true }
+  ],
+  loyer: 2000,
+  charges: 800,
+  autresCharges: 500
+};
+
+const defaultLieux = [
+  {
+    id: 1,
+    nom: 'Lieu de Vie 1',
+    enfantsParLieu: 6,
+    tauxRemplissage: 95,
+    investissements: {
+      bienImmo: { montant: 380000, duree: 30, taux: 2.5 },
+      travaux: { montant: 20000, duree: 10, taux: 2.0 },
+      vehicule: { montant: 55000, duree: 5, taux: 3.0 },
+      informatique: { montant: 5000, duree: 3, taux: 0 },
+      mobilier: { montant: 5000, duree: 10, taux: 0 },
+      fraisBancaires: { montant: 15000, duree: 15, taux: 0 },
+      fraisNotaire: { montant: 28000, duree: 1, taux: 0 }
+    },
+    exploitation: [
+      { id: 1, nom: 'Alimentation', montant: 2500 },
+      { id: 2, nom: 'Carburant', montant: 1500 },
+      { id: 3, nom: 'Assurances', montant: 600 },
+      { id: 4, nom: 'Frais bancaires', montant: 200 },
+      { id: 5, nom: 'Budget pédago', montant: 1500 },
+      { id: 6, nom: 'Eau/Élec/Gaz', montant: 800 },
+      { id: 7, nom: 'Entretien', montant: 250 },
+      { id: 8, nom: 'Fournitures', montant: 300 }
+    ],
+    personnel: [
+      { id: 1, titre: 'Éducateur Spécialisé', etp: 2, salaire: 3000, segur: true },
+      { id: 2, titre: 'Directeur', etp: 0.2, salaire: 4500, segur: true },
+      { id: 3, titre: 'Chef de service', etp: 0.4, salaire: 3500, segur: true },
+      { id: 4, titre: 'Agent technique', etp: 0.1, salaire: 2400, segur: true },
+      { id: 5, titre: 'IDE', etp: 0.1, salaire: 3000, segur: true },
+      { id: 6, titre: 'Secrétariat', etp: 0.2, salaire: 2400, segur: true }
+    ]
+  }
+];
+
+// Fonction pour charger depuis localStorage
+const loadFromStorage = (key, defaultValue) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
 
 const BudgetTool = () => {
   const fileInputRef = useRef(null);
-  
-  const [globalParams, setGlobalParams] = useState({
-    augmentationAnnuelle: 2.5,
-    // Provisions
-    tauxProvisionCongesPayes: 10,
-    tauxProvisionGrossesReparations: 2,
-    tauxProvisionCreancesDouteuses: 1,
-    // BFR
-    delaiPaiementClients: 30, // en jours
-    delaiPaiementFournisseurs: 30 // en jours
-  });
 
-  const [direction, setDirection] = useState({
-    personnel: [
-      { id: 1, titre: 'Directeur', etp: 1, salaire: 4500, segur: true },
-      { id: 2, titre: 'Chef de Service', etp: 2, salaire: 3500, segur: true },
-      { id: 3, titre: 'Secrétariat', etp: 2, salaire: 2400, segur: true },
-      { id: 4, titre: 'Agent accueil', etp: 1, salaire: 2500, segur: true },
-      { id: 5, titre: 'Comptable', etp: 1, salaire: 2400, segur: true }
-    ],
-    loyer: 2000,
-    charges: 800,
-    autresCharges: 500
-  });
+  const [globalParams, setGlobalParams] = useState(() => loadFromStorage('budget_globalParams', defaultGlobalParams));
+  const [direction, setDirection] = useState(() => loadFromStorage('budget_direction', defaultDirection));
+  const [lieux, setLieux] = useState(() => loadFromStorage('budget_lieux', defaultLieux));
 
-  const [lieux, setLieux] = useState([
-    {
-      id: 1,
-      nom: 'Lieu de Vie 1',
-      enfantsParLieu: 6,
-      tauxRemplissage: 95,
-      investissements: {
-        bienImmo: { montant: 380000, duree: 30, taux: 2.5 },
-        travaux: { montant: 20000, duree: 10, taux: 2.0 },
-        vehicule: { montant: 55000, duree: 5, taux: 3.0 },
-        informatique: { montant: 5000, duree: 3, taux: 0 },
-        mobilier: { montant: 5000, duree: 10, taux: 0 },
-        fraisBancaires: { montant: 15000, duree: 15, taux: 0 },
-        fraisNotaire: { montant: 28000, duree: 1, taux: 0 }
-      },
-      exploitation: [
-        { id: 1, nom: 'Alimentation', montant: 2500 },
-        { id: 2, nom: 'Carburant', montant: 1500 },
-        { id: 3, nom: 'Assurances', montant: 600 },
-        { id: 4, nom: 'Frais bancaires', montant: 200 },
-        { id: 5, nom: 'Budget pédago', montant: 1500 },
-        { id: 6, nom: 'Eau/Élec/Gaz', montant: 800 },
-        { id: 7, nom: 'Entretien', montant: 250 },
-        { id: 8, nom: 'Fournitures', montant: 300 }
-      ],
-      personnel: [
-        { id: 1, titre: 'Éducateur Spécialisé', etp: 2, salaire: 3000, segur: true },
-        { id: 2, titre: 'Directeur', etp: 0.2, salaire: 4500, segur: true },
-        { id: 3, titre: 'Chef de service', etp: 0.4, salaire: 3500, segur: true },
-        { id: 4, titre: 'Agent technique', etp: 0.1, salaire: 2400, segur: true },
-        { id: 5, titre: 'IDE', etp: 0.1, salaire: 3000, segur: true },
-        { id: 6, titre: 'Secrétariat', etp: 0.2, salaire: 2400, segur: true }
-      ]
-    }
-  ]);
+  // Sauvegarde automatique dans localStorage
+  useEffect(() => {
+    localStorage.setItem('budget_globalParams', JSON.stringify(globalParams));
+  }, [globalParams]);
+
+  useEffect(() => {
+    localStorage.setItem('budget_direction', JSON.stringify(direction));
+  }, [direction]);
+
+  useEffect(() => {
+    localStorage.setItem('budget_lieux', JSON.stringify(lieux));
+  }, [lieux]);
 
   const CHARGES_PATRONALES = 0.42;
   const PRIME_SEGUR = 238;
