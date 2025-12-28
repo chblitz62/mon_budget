@@ -159,19 +159,73 @@ const BudgetTool = () => {
     };
   };
 
+  // Calcul du tableau d'amortissement détaillé par année
+  const calculerTableauAmortissement = (capital, dureeAnnees, tauxAnnuel) => {
+    if (capital === 0 || dureeAnnees === 0) {
+      return Array(dureeAnnees).fill({ interets: 0, capitalRembourse: 0, capitalRestant: 0 });
+    }
+
+    if (tauxAnnuel === 0) {
+      // Prêt sans intérêts : remboursement linéaire
+      const remboursementAnnuel = capital / dureeAnnees;
+      return Array.from({ length: dureeAnnees }, (_, i) => ({
+        interets: 0,
+        capitalRembourse: remboursementAnnuel,
+        capitalRestant: capital - remboursementAnnuel * (i + 1)
+      }));
+    }
+
+    const tauxMensuel = tauxAnnuel / 100 / 12;
+    const nombreMois = dureeAnnees * 12;
+    const mensualite = capital * (tauxMensuel * Math.pow(1 + tauxMensuel, nombreMois)) / (Math.pow(1 + tauxMensuel, nombreMois) - 1);
+
+    const tableau = [];
+    let capitalRestant = capital;
+
+    for (let annee = 0; annee < dureeAnnees; annee++) {
+      let interetsAnnee = 0;
+      let capitalAnnee = 0;
+
+      for (let mois = 0; mois < 12; mois++) {
+        if (capitalRestant <= 0) break;
+        const interetsMois = capitalRestant * tauxMensuel;
+        const capitalMois = Math.min(mensualite - interetsMois, capitalRestant);
+        interetsAnnee += interetsMois;
+        capitalAnnee += capitalMois;
+        capitalRestant -= capitalMois;
+      }
+
+      tableau.push({
+        interets: interetsAnnee,
+        capitalRembourse: capitalAnnee,
+        capitalRestant: Math.max(0, capitalRestant)
+      });
+    }
+
+    return tableau;
+  };
+
   const calculerAmortissementEtInterets = (investissement) => {
     const { montant, duree, taux } = investissement;
     const amortissement = montant / duree;
-    const interets = (montant * taux) / 100;
     const mensualite = calculerMensualitePret(montant, duree, taux);
     const coutTotal = mensualite * duree * 12;
     const coutCredit = coutTotal - montant;
-    return { 
-      amortissement, 
-      interets, 
+
+    // Tableau d'amortissement détaillé
+    const tableauAmort = calculerTableauAmortissement(montant, duree, taux);
+
+    // Intérêts de la première année (pour affichage par défaut)
+    const interetsAnnee1 = tableauAmort.length > 0 ? tableauAmort[0].interets : 0;
+
+    return {
+      amortissement,
+      interets: interetsAnnee1,
+      interetsParAnnee: tableauAmort.map(a => a.interets),
       mensualite,
       coutTotal,
-      coutCredit
+      coutCredit,
+      tableauAmort
     };
   };
 
@@ -200,21 +254,31 @@ const BudgetTool = () => {
       segur: p.segur,
       ...calculerSalaireAnnuel(p.salaire, p.etp, p.segur)
     }));
-    
+
     const salaires = detailsSalaires.reduce((sum, s) => sum + s.total, 0);
     const exploitation = lieu.exploitation.reduce((sum, item) => sum + item.montant * 12, 0);
-    
+
     let amortissements = 0;
     let interets = 0;
     let totalInvestissements = 0;
     const detailsInvest = {};
-    
+
+    // Calculer les intérêts par année (sur 3 ans pour la projection)
+    const interetsParAnnee = [0, 0, 0];
+
     Object.entries(lieu.investissements).forEach(([key, inv]) => {
       const calc = calculerAmortissementEtInterets(inv);
       amortissements += calc.amortissement;
-      interets += calc.interets;
+      interets += calc.interets; // Année 1
       totalInvestissements += inv.montant;
       detailsInvest[key] = calc;
+
+      // Accumuler les intérêts par année
+      for (let i = 0; i < 3; i++) {
+        if (calc.interetsParAnnee && calc.interetsParAnnee[i] !== undefined) {
+          interetsParAnnee[i] += calc.interetsParAnnee[i];
+        }
+      }
     });
 
     const joursAnnuels = lieu.enfantsParLieu * (lieu.tauxRemplissage / 100) * JOURS_ANNEE;
@@ -229,6 +293,7 @@ const BudgetTool = () => {
       exploitationDetails: lieu.exploitation,
       amortissements,
       interets,
+      interetsParAnnee,
       detailsInvest,
       joursAnnuels,
       total,
@@ -303,16 +368,17 @@ const BudgetTool = () => {
   };
 
   const summary3Ans = [1, 2, 3].map(annee => {
-    const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, annee - 1);
+    const indexAnnee = annee - 1; // 0, 1, 2 pour accéder aux tableaux
+    const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, indexAnnee);
     const budgetDir = calculerBudgetDirection();
     const budgetDirAjuste = (budgetDir.salaires + budgetDir.chargesSiege) * augmentation;
-    
+
     let totalJoursGlobal = 0;
     lieux.forEach(l => {
       const joursLieu = l.enfantsParLieu * (l.tauxRemplissage / 100) * JOURS_ANNEE;
       totalJoursGlobal += joursLieu;
     });
-    
+
     let totalGlobal = budgetDirAjuste;
     let totalJours = 0;
     let amortTotal = 0;
@@ -322,26 +388,29 @@ const BudgetTool = () => {
     lieux.forEach(l => {
       const bLieu = calculerBudgetLieu(l);
       const budgetLieuAjuste = (bLieu.salaires + bLieu.exploitation) * augmentation;
-      
+
+      // Utiliser les intérêts de l'année correspondante
+      const interetsAnnee = bLieu.interetsParAnnee[indexAnnee] || 0;
+
       const proportionLieu = totalJoursGlobal > 0 ? bLieu.joursAnnuels / totalJoursGlobal : 0;
       const partSiege = budgetDirAjuste * proportionLieu;
-      
-      const budgetLieuTotal = budgetLieuAjuste + bLieu.amortissements + bLieu.interets + partSiege;
-      
-      totalGlobal += budgetLieuAjuste + bLieu.amortissements + bLieu.interets;
+
+      const budgetLieuTotal = budgetLieuAjuste + bLieu.amortissements + interetsAnnee + partSiege;
+
+      totalGlobal += budgetLieuAjuste + bLieu.amortissements + interetsAnnee;
       totalJours += bLieu.joursAnnuels;
       amortTotal += bLieu.amortissements;
-      interetsTotal += bLieu.interets;
-      
+      interetsTotal += interetsAnnee;
+
       detailsLieux.push({
         nom: l.nom,
         budget: budgetLieuTotal,
-        budgetSansAllocSiege: budgetLieuAjuste + bLieu.amortissements + bLieu.interets,
+        budgetSansAllocSiege: budgetLieuAjuste + bLieu.amortissements + interetsAnnee,
         partSiege: partSiege,
         proportionLieu: proportionLieu * 100,
         jours: bLieu.joursAnnuels,
         prixJour: bLieu.joursAnnuels > 0 ? budgetLieuTotal / bLieu.joursAnnuels : 0,
-        prixJourSansAllocSiege: bLieu.joursAnnuels > 0 ? (budgetLieuAjuste + bLieu.amortissements + bLieu.interets) / bLieu.joursAnnuels : 0
+        prixJourSansAllocSiege: bLieu.joursAnnuels > 0 ? (budgetLieuAjuste + bLieu.amortissements + interetsAnnee) / bLieu.joursAnnuels : 0
       });
     });
 
