@@ -1,74 +1,39 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, DollarSign, Save, Upload, Printer, Moon, Sun } from 'lucide-react';
 
-// Valeurs par défaut
-const defaultGlobalParams = {
-  augmentationAnnuelle: 2.5,
-  tauxProvisionCongesPayes: 10,
-  tauxProvisionGrossesReparations: 2,
-  tauxProvisionCreancesDouteuses: 1,
-  delaiPaiementClients: 30,
-  delaiPaiementFournisseurs: 30
-};
+// Import des constantes et valeurs par défaut
+import {
+  CHARGES_PATRONALES,
+  PRIME_SEGUR,
+  JOURS_ANNEE,
+  COMPTES_IMMO,
+  COMPTES_EXPLOITATION,
+  defaultGlobalParams,
+  defaultDirection,
+  defaultLieux
+} from './utils/constants';
 
-const defaultDirection = {
-  personnel: [
-    { id: 1, titre: 'Directeur', etp: 1, salaire: 4500, segur: true },
-    { id: 2, titre: 'Chef de Service', etp: 2, salaire: 3500, segur: true },
-    { id: 3, titre: 'Secrétariat', etp: 2, salaire: 2400, segur: true },
-    { id: 4, titre: 'Agent accueil', etp: 1, salaire: 2500, segur: true },
-    { id: 5, titre: 'Comptable', etp: 1, salaire: 2400, segur: true }
-  ],
-  loyer: 2000,
-  charges: 800,
-  autresCharges: 500
-};
-
-const defaultLieux = [
-  {
-    id: 1,
-    nom: 'Lieu de Vie 1',
-    enfantsParLieu: 6,
-    tauxRemplissage: 95,
-    investissements: {
-      bienImmo: { montant: 380000, duree: 30, taux: 2.5 },
-      travaux: { montant: 20000, duree: 10, taux: 2.0 },
-      vehicule: { montant: 55000, duree: 5, taux: 3.0 },
-      informatique: { montant: 5000, duree: 3, taux: 0 },
-      mobilier: { montant: 5000, duree: 10, taux: 0 },
-      fraisBancaires: { montant: 15000, duree: 15, taux: 0 },
-      fraisNotaire: { montant: 28000, duree: 1, taux: 0 }
-    },
-    exploitation: [
-      { id: 1, nom: 'Alimentation', montant: 2500 },
-      { id: 2, nom: 'Carburant', montant: 1500 },
-      { id: 3, nom: 'Assurances', montant: 600 },
-      { id: 4, nom: 'Frais bancaires', montant: 200 },
-      { id: 5, nom: 'Budget pédago', montant: 1500 },
-      { id: 6, nom: 'Eau/Élec/Gaz', montant: 800 },
-      { id: 7, nom: 'Entretien', montant: 250 },
-      { id: 8, nom: 'Fournitures', montant: 300 }
-    ],
-    personnel: [
-      { id: 1, titre: 'Éducateur Spécialisé', etp: 2, salaire: 3000, segur: true },
-      { id: 2, titre: 'Directeur', etp: 0.2, salaire: 4500, segur: true },
-      { id: 3, titre: 'Chef de service', etp: 0.4, salaire: 3500, segur: true },
-      { id: 4, titre: 'Agent technique', etp: 0.1, salaire: 2400, segur: true },
-      { id: 5, titre: 'IDE', etp: 0.1, salaire: 3000, segur: true },
-      { id: 6, titre: 'Secrétariat', etp: 0.2, salaire: 2400, segur: true }
-    ]
-  }
-];
-
-// Fonction pour charger depuis localStorage
-const loadFromStorage = (key, defaultValue) => {
-  try {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultValue;
-  } catch {
-    return defaultValue;
-  }
-};
+// Import des fonctions de calcul
+import {
+  validerNombre,
+  validerEntier,
+  validerTaux,
+  validerETP,
+  validerSalaire,
+  validerMontant,
+  validerDuree,
+  validerJours,
+  calculerMensualitePret,
+  calculerSalaireAnnuel,
+  calculerTableauAmortissement,
+  calculerAmortissementEtInterets,
+  calculerBudgetDirection,
+  calculerBudgetLieu,
+  calculerProvisions,
+  calculerBFR,
+  calculerSynthese3Ans,
+  loadFromStorage
+} from './utils/calculations';
 
 const BudgetTool = () => {
   const fileInputRef = useRef(null);
@@ -97,341 +62,12 @@ const BudgetTool = () => {
     localStorage.setItem('budget_darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Fonctions de validation des champs numériques
-  const validerNombre = (valeur, min = 0, max = Infinity) => {
-    const num = parseFloat(valeur);
-    if (isNaN(num)) return min;
-    return Math.min(Math.max(num, min), max);
-  };
-
-  const validerEntier = (valeur, min = 0, max = Infinity) => {
-    const num = parseInt(valeur);
-    if (isNaN(num)) return min;
-    return Math.min(Math.max(num, min), max);
-  };
-
-  const validerTaux = (valeur) => validerNombre(valeur, 0, 100);
-  const validerETP = (valeur) => validerNombre(valeur, 0, 50);
-  const validerSalaire = (valeur) => validerEntier(valeur, 0, 50000);
-  const validerMontant = (valeur) => validerEntier(valeur, 0, 10000000);
-  const validerDuree = (valeur) => validerEntier(valeur, 1, 50);
-  const validerJours = (valeur) => validerEntier(valeur, 0, 365);
-
-  const CHARGES_PATRONALES = 0.42;
-  const PRIME_SEGUR = 238;
-  const JOURS_ANNEE = 365;
-
-  // Plan Comptable Général - Numéros de compte
-  const COMPTES_IMMO = {
-    bienImmo: { compte: '213', libelle: 'Constructions' },
-    travaux: { compte: '213', libelle: 'Constructions (travaux)' },
-    vehicule: { compte: '2182', libelle: 'Matériel de transport' },
-    informatique: { compte: '2183', libelle: 'Matériel informatique' },
-    mobilier: { compte: '2184', libelle: 'Mobilier' },
-    fraisBancaires: { compte: '627', libelle: 'Frais bancaires (acquisition)' },
-    fraisNotaire: { compte: '622', libelle: 'Frais notariés' }
-  };
-
-  const COMPTES_EXPLOITATION = {
-    'Alimentation': '601',
-    'Carburant': '6061',
-    'Assurances': '616',
-    'Frais bancaires': '627',
-    'Budget pédago': '6064',
-    'Eau/Élec/Gaz': '606',
-    'Entretien': '615',
-    'Fournitures': '6064',
-    'Loyer': '613',
-    'Charges': '614'
-  };
-
-  // CALCULS
-  const calculerMensualitePret = (capital, dureeAnnees, tauxAnnuel) => {
-    if (tauxAnnuel === 0 || capital === 0) return 0;
-    const tauxMensuel = tauxAnnuel / 100 / 12;
-    const nombreMois = dureeAnnees * 12;
-    const mensualite = capital * (tauxMensuel * Math.pow(1 + tauxMensuel, nombreMois)) / (Math.pow(1 + tauxMensuel, nombreMois) - 1);
-    return mensualite;
-  };
-
-  const calculerSalaireAnnuel = (salaire, etp, segur) => {
-    const salaireAnnuel = salaire * 12 * etp;
-    const charges = salaireAnnuel * CHARGES_PATRONALES;
-    const primeSegur = segur ? (PRIME_SEGUR * 1.42) * 12 * etp : 0;
-    return {
-      brut: salaireAnnuel,
-      charges: charges,
-      segur: primeSegur,
-      total: salaireAnnuel + charges + primeSegur
-    };
-  };
-
-  // Calcul du tableau d'amortissement détaillé par année
-  const calculerTableauAmortissement = (capital, dureeAnnees, tauxAnnuel) => {
-    if (capital === 0 || dureeAnnees === 0) {
-      return Array(dureeAnnees).fill({ interets: 0, capitalRembourse: 0, capitalRestant: 0 });
-    }
-
-    if (tauxAnnuel === 0) {
-      // Prêt sans intérêts : remboursement linéaire
-      const remboursementAnnuel = capital / dureeAnnees;
-      return Array.from({ length: dureeAnnees }, (_, i) => ({
-        interets: 0,
-        capitalRembourse: remboursementAnnuel,
-        capitalRestant: capital - remboursementAnnuel * (i + 1)
-      }));
-    }
-
-    const tauxMensuel = tauxAnnuel / 100 / 12;
-    const nombreMois = dureeAnnees * 12;
-    const mensualite = capital * (tauxMensuel * Math.pow(1 + tauxMensuel, nombreMois)) / (Math.pow(1 + tauxMensuel, nombreMois) - 1);
-
-    const tableau = [];
-    let capitalRestant = capital;
-
-    for (let annee = 0; annee < dureeAnnees; annee++) {
-      let interetsAnnee = 0;
-      let capitalAnnee = 0;
-
-      for (let mois = 0; mois < 12; mois++) {
-        if (capitalRestant <= 0) break;
-        const interetsMois = capitalRestant * tauxMensuel;
-        const capitalMois = Math.min(mensualite - interetsMois, capitalRestant);
-        interetsAnnee += interetsMois;
-        capitalAnnee += capitalMois;
-        capitalRestant -= capitalMois;
-      }
-
-      tableau.push({
-        interets: interetsAnnee,
-        capitalRembourse: capitalAnnee,
-        capitalRestant: Math.max(0, capitalRestant)
-      });
-    }
-
-    return tableau;
-  };
-
-  const calculerAmortissementEtInterets = (investissement) => {
-    const { montant, duree, taux } = investissement;
-    const amortissement = montant / duree;
-    const mensualite = calculerMensualitePret(montant, duree, taux);
-    const coutTotal = mensualite * duree * 12;
-    const coutCredit = coutTotal - montant;
-
-    // Tableau d'amortissement détaillé
-    const tableauAmort = calculerTableauAmortissement(montant, duree, taux);
-
-    // Intérêts de la première année (pour affichage par défaut)
-    const interetsAnnee1 = tableauAmort.length > 0 ? tableauAmort[0].interets : 0;
-
-    return {
-      amortissement,
-      interets: interetsAnnee1,
-      interetsParAnnee: tableauAmort.map(a => a.interets),
-      mensualite,
-      coutTotal,
-      coutCredit,
-      tableauAmort
-    };
-  };
-
-  const calculerBudgetDirection = () => {
-    const detailsSalaires = direction.personnel.map(p => ({
-      titre: p.titre,
-      ...calculerSalaireAnnuel(p.salaire, p.etp, p.segur)
-    }));
-    
-    const totalSalaires = detailsSalaires.reduce((sum, s) => sum + s.total, 0);
-    const chargesSiege = (direction.loyer + direction.charges + direction.autresCharges) * 12;
-    
-    return {
-      salaires: totalSalaires,
-      detailsSalaires,
-      chargesSiege,
-      total: totalSalaires + chargesSiege
-    };
-  };
-
-  const calculerBudgetLieu = (lieu) => {
-    const detailsSalaires = lieu.personnel.map(p => ({
-      titre: p.titre,
-      etp: p.etp,
-      salaire: p.salaire,
-      segur: p.segur,
-      ...calculerSalaireAnnuel(p.salaire, p.etp, p.segur)
-    }));
-
-    const salaires = detailsSalaires.reduce((sum, s) => sum + s.total, 0);
-    const exploitation = lieu.exploitation.reduce((sum, item) => sum + item.montant * 12, 0);
-
-    let amortissements = 0;
-    let interets = 0;
-    let totalInvestissements = 0;
-    const detailsInvest = {};
-
-    // Calculer les intérêts par année (sur 3 ans pour la projection)
-    const interetsParAnnee = [0, 0, 0];
-
-    Object.entries(lieu.investissements).forEach(([key, inv]) => {
-      const calc = calculerAmortissementEtInterets(inv);
-      amortissements += calc.amortissement;
-      interets += calc.interets; // Année 1
-      totalInvestissements += inv.montant;
-      detailsInvest[key] = calc;
-
-      // Accumuler les intérêts par année
-      for (let i = 0; i < 3; i++) {
-        if (calc.interetsParAnnee && calc.interetsParAnnee[i] !== undefined) {
-          interetsParAnnee[i] += calc.interetsParAnnee[i];
-        }
-      }
-    });
-
-    const joursAnnuels = lieu.enfantsParLieu * (lieu.tauxRemplissage / 100) * JOURS_ANNEE;
-    const totalAvantAmort = salaires + exploitation + interets;
-    const total = totalAvantAmort + amortissements;
-    const prixJour = joursAnnuels > 0 ? total / joursAnnuels : 0;
-
-    return {
-      salaires,
-      detailsSalaires,
-      exploitation,
-      exploitationDetails: lieu.exploitation,
-      amortissements,
-      interets,
-      interetsParAnnee,
-      detailsInvest,
-      joursAnnuels,
-      total,
-      prixJour,
-      totalInvestissements
-    };
-  };
-
-  // CALCUL DES PROVISIONS
-  const calculerProvisions = () => {
-    const budgetDir = calculerBudgetDirection();
-    let totalSalaires = budgetDir.salaires;
-    let totalInvestissements = 0;
-    let chiffreAffaires = 0;
-    
-    lieux.forEach(l => {
-      const bLieu = calculerBudgetLieu(l);
-      totalSalaires += bLieu.salaires;
-      totalInvestissements += bLieu.totalInvestissements;
-      chiffreAffaires += bLieu.total;
-    });
-    
-    const provisionCongesPayes = totalSalaires * (globalParams.tauxProvisionCongesPayes / 100);
-    const provisionGrossesReparations = totalInvestissements * (globalParams.tauxProvisionGrossesReparations / 100);
-    const provisionCreancesDouteuses = chiffreAffaires * (globalParams.tauxProvisionCreancesDouteuses / 100);
-    
-    return {
-      congesPayes: provisionCongesPayes,
-      grossesReparations: provisionGrossesReparations,
-      creancesDouteuses: provisionCreancesDouteuses,
-      total: provisionCongesPayes + provisionGrossesReparations + provisionCreancesDouteuses
-    };
-  };
-
-  // CALCUL DU BFR (Besoin en Fonds de Roulement)
-  const calculerBFR = () => {
-    let chiffreAffaires = 0;
-    let achatsExploitation = 0;
-    
-    const budgetDir = calculerBudgetDirection();
-    achatsExploitation += budgetDir.chargesSiege;
-    
-    lieux.forEach(l => {
-      const bLieu = calculerBudgetLieu(l);
-      chiffreAffaires += bLieu.total;
-      achatsExploitation += bLieu.exploitation;
-    });
-    
-    // Stocks = 0 dans le secteur social (pas de stock)
-    const stocks = 0;
-    
-    // Créances clients (délai de paiement moyen)
-    const creancesClients = (chiffreAffaires / 365) * globalParams.delaiPaiementClients;
-    
-    // Dettes fournisseurs (délai de paiement moyen)
-    const dettesFournisseurs = (achatsExploitation / 365) * globalParams.delaiPaiementFournisseurs;
-    
-    // BFR = Stocks + Créances - Dettes
-    const bfr = stocks + creancesClients - dettesFournisseurs;
-    
-    // En jours de CA
-    const bfrEnJours = chiffreAffaires > 0 ? (bfr / chiffreAffaires) * 365 : 0;
-    
-    return {
-      stocks,
-      creancesClients,
-      dettesFournisseurs,
-      bfr,
-      bfrEnJours,
-      chiffreAffaires
-    };
-  };
-
-  const summary3Ans = [1, 2, 3].map(annee => {
-    const indexAnnee = annee - 1; // 0, 1, 2 pour accéder aux tableaux
-    const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, indexAnnee);
-    const budgetDir = calculerBudgetDirection();
-    const budgetDirAjuste = (budgetDir.salaires + budgetDir.chargesSiege) * augmentation;
-
-    let totalJoursGlobal = 0;
-    lieux.forEach(l => {
-      const joursLieu = l.enfantsParLieu * (l.tauxRemplissage / 100) * JOURS_ANNEE;
-      totalJoursGlobal += joursLieu;
-    });
-
-    let totalGlobal = budgetDirAjuste;
-    let totalJours = 0;
-    let amortTotal = 0;
-    let interetsTotal = 0;
-    let detailsLieux = [];
-
-    lieux.forEach(l => {
-      const bLieu = calculerBudgetLieu(l);
-      const budgetLieuAjuste = (bLieu.salaires + bLieu.exploitation) * augmentation;
-
-      // Utiliser les intérêts de l'année correspondante
-      const interetsAnnee = bLieu.interetsParAnnee[indexAnnee] || 0;
-
-      const proportionLieu = totalJoursGlobal > 0 ? bLieu.joursAnnuels / totalJoursGlobal : 0;
-      const partSiege = budgetDirAjuste * proportionLieu;
-
-      const budgetLieuTotal = budgetLieuAjuste + bLieu.amortissements + interetsAnnee + partSiege;
-
-      totalGlobal += budgetLieuAjuste + bLieu.amortissements + interetsAnnee;
-      totalJours += bLieu.joursAnnuels;
-      amortTotal += bLieu.amortissements;
-      interetsTotal += interetsAnnee;
-
-      detailsLieux.push({
-        nom: l.nom,
-        budget: budgetLieuTotal,
-        budgetSansAllocSiege: budgetLieuAjuste + bLieu.amortissements + interetsAnnee,
-        partSiege: partSiege,
-        proportionLieu: proportionLieu * 100,
-        jours: bLieu.joursAnnuels,
-        prixJour: bLieu.joursAnnuels > 0 ? budgetLieuTotal / bLieu.joursAnnuels : 0,
-        prixJourSansAllocSiege: bLieu.joursAnnuels > 0 ? (budgetLieuAjuste + bLieu.amortissements + interetsAnnee) / bLieu.joursAnnuels : 0
-      });
-    });
-
-    return {
-      annee,
-      total: totalGlobal,
-      prixJour: totalJours > 0 ? totalGlobal / totalJours : 0,
-      amortissements: amortTotal,
-      interets: interetsTotal,
-      jours: totalJours,
-      budgetDirection: budgetDirAjuste,
-      detailsLieux
-    };
-  });
+  // Wrappers pour les fonctions de calcul avec les données actuelles
+  const getBudgetDirection = () => calculerBudgetDirection(direction);
+  const getBudgetLieu = (lieu) => getBudgetLieu(lieu);
+  const getProvisions = () => calculerProvisions(direction, lieux, globalParams);
+  const getBFR = () => calculerBFR(direction, lieux, globalParams);
+  const summary3Ans = calculerSynthese3Ans(direction, lieux, globalParams);
 
   // SAUVEGARDE AU FORMAT JSON
   const sauvegarderBudget = () => {
@@ -492,7 +128,7 @@ const BudgetTool = () => {
     });
     
     // PROVISIONS
-    const provisions = calculerProvisions();
+    const provisions = getProvisions();
     csv += '\n\nPROVISIONS POUR CHARGES - ANNÉE 1\n';
     csv += 'Compte,Libellé,Base de calcul,Taux,Montant annuel\n';
     csv += `151,Provision congés payés,Masse salariale,${globalParams.tauxProvisionCongesPayes}%,${provisions.congesPayes.toFixed(2)}\n`;
@@ -501,7 +137,7 @@ const BudgetTool = () => {
     csv += `15,TOTAL PROVISIONS,,,${provisions.total.toFixed(2)}\n`;
     
     // BFR
-    const bfr = calculerBFR();
+    const bfr = getBFR();
     csv += '\n\nBESOIN EN FONDS DE ROULEMENT - ANNÉE 1\n';
     csv += 'Élément,Montant (€),Détail\n';
     csv += `Stocks,${bfr.stocks.toFixed(2)},Pas de stock (secteur social)\n`;
@@ -516,7 +152,7 @@ const BudgetTool = () => {
       csv += `${lieu.nom},${lieu.budgetSansAllocSiege.toFixed(2)},${lieu.partSiege.toFixed(2)},${lieu.budget.toFixed(2)},${lieu.jours.toFixed(0)},${lieu.prixJour.toFixed(2)},${lieu.proportionLieu.toFixed(2)}%\n`;
     });
     
-    const budgetDir = calculerBudgetDirection();
+    const budgetDir = getBudgetDirection();
     csv += '\n\nDIRECTION & SIÈGE\n';
     csv += 'Compte,Poste,ETP,Salaire Mensuel,Salaire Annuel,Charges,Prime Ségur,Total\n';
     budgetDir.detailsSalaires.forEach(s => {
@@ -529,7 +165,7 @@ const BudgetTool = () => {
     csv += `\nTOTAL DIRECTION,,,${budgetDir.total.toFixed(2)}\n`;
     
     lieux.forEach(lieu => {
-      const bLieu = calculerBudgetLieu(lieu);
+      const bLieu = getBudgetLieu(lieu);
       csv += `\n\n${lieu.nom.toUpperCase()}\n`;
       csv += `Enfants: ${lieu.enfantsParLieu}, Occupation: ${lieu.tauxRemplissage}%, Jours: ${bLieu.joursAnnuels.toFixed(0)}\n\n`;
       
@@ -607,13 +243,13 @@ const BudgetTool = () => {
     ];
     
     lieux.forEach((lieu, idx) => {
-      const bLieu = calculerBudgetLieu(lieu);
+      const bLieu = getBudgetLieu(lieu);
       let totalJoursGlobal = 0;
       lieux.forEach(l => {
         totalJoursGlobal += l.enfantsParLieu * (l.tauxRemplissage / 100) * JOURS_ANNEE;
       });
       const proportionLieu = totalJoursGlobal > 0 ? bLieu.joursAnnuels / totalJoursGlobal : 0;
-      const partSiege = calculerBudgetDirection().total * proportionLieu;
+      const partSiege = getBudgetDirection().total * proportionLieu;
       const budgetAvecSiege = bLieu.total + partSiege;
       const prixJourAvecSiege = bLieu.joursAnnuels > 0 ? budgetAvecSiege / bLieu.joursAnnuels : 0;
       
@@ -655,7 +291,7 @@ const BudgetTool = () => {
     XLSX.utils.book_append_sheet(wb, wsSynthese, 'Synthèse');
     
     // ONGLET 2: DIRECTION & SIÈGE
-    const budgetDir = calculerBudgetDirection();
+    const budgetDir = getBudgetDirection();
     const direction_data = [
       ['DIRECTION & SIÈGE - BUDGET DÉTAILLÉ'],
       [],
@@ -694,14 +330,14 @@ const BudgetTool = () => {
     
     // ONGLET PAR LIEU DE VIE
     lieux.forEach((lieu, lieuIdx) => {
-      const bLieu = calculerBudgetLieu(lieu);
+      const bLieu = getBudgetLieu(lieu);
       
       let totalJoursGlobal = 0;
       lieux.forEach(l => {
         totalJoursGlobal += l.enfantsParLieu * (l.tauxRemplissage / 100) * JOURS_ANNEE;
       });
       const proportionLieu = totalJoursGlobal > 0 ? bLieu.joursAnnuels / totalJoursGlobal : 0;
-      const partSiege = calculerBudgetDirection().total * proportionLieu;
+      const partSiege = getBudgetDirection().total * proportionLieu;
       const budgetAvecSiege = bLieu.total + partSiege;
       const prixJourAvecSiege = bLieu.joursAnnuels > 0 ? budgetAvecSiege / bLieu.joursAnnuels : 0;
       
@@ -788,8 +424,8 @@ const BudgetTool = () => {
     });
     
     // ONGLET PROVISIONS & BFR
-    const provisions = calculerProvisions();
-    const bfr = calculerBFR();
+    const provisions = getProvisions();
+    const bfr = getBFR();
     
     const provisions_data = [
       ['PROVISIONS ET TRÉSORERIE'],
@@ -844,12 +480,12 @@ const BudgetTool = () => {
     
     summary3Ans.forEach((s, i) => {
       const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, i);
-      const budgetDir = calculerBudgetDirection();
+      const budgetDir = getBudgetDirection();
       let totalSalaires = budgetDir.salaires;
       let totalChargesExploitation = budgetDir.chargesSiege;
       
       lieux.forEach(l => {
-        const b = calculerBudgetLieu(l);
+        const b = getBudgetLieu(l);
         totalSalaires += b.salaires;
         totalChargesExploitation += b.exploitation;
       });
@@ -873,11 +509,11 @@ const BudgetTool = () => {
     compte_resultat.push(['645', 'Charges sociales et patronales']);
     summary3Ans.forEach((s, i) => {
       const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, i);
-      const budgetDir = calculerBudgetDirection();
+      const budgetDir = getBudgetDirection();
       let totalSalaires = budgetDir.salaires;
       
       lieux.forEach(l => {
-        const b = calculerBudgetLieu(l);
+        const b = getBudgetLieu(l);
         totalSalaires += b.salaires;
       });
       
@@ -888,11 +524,11 @@ const BudgetTool = () => {
     compte_resultat.push(['60/61/62', 'Autres charges externes']);
     summary3Ans.forEach((s, i) => {
       const augmentation = Math.pow(1 + globalParams.augmentationAnnuelle / 100, i);
-      const budgetDir = calculerBudgetDirection();
+      const budgetDir = getBudgetDirection();
       let totalChargesExploitation = budgetDir.chargesSiege;
       
       lieux.forEach(l => {
-        const b = calculerBudgetLieu(l);
+        const b = getBudgetLieu(l);
         totalChargesExploitation += b.exploitation;
       });
       
@@ -1083,7 +719,7 @@ const BudgetTool = () => {
             </div>
             
             {(() => {
-              const provisions = calculerProvisions();
+              const provisions = getProvisions();
               return (
                 <>
                   <div className="space-y-3 mb-4">
@@ -1172,7 +808,7 @@ const BudgetTool = () => {
             </div>
             
             {(() => {
-              const bfr = calculerBFR();
+              const bfr = getBFR();
               return (
                 <>
                   <div className="space-y-3 mb-4">
@@ -1302,14 +938,14 @@ const BudgetTool = () => {
 
         {/* Graphique de répartition du budget */}
         {(() => {
-          const budgetDir = calculerBudgetDirection();
+          const budgetDir = getBudgetDirection();
           let totalSalaires = budgetDir.salaires;
           let totalExploitation = budgetDir.chargesSiege;
           let totalAmortissements = 0;
           let totalInterets = 0;
 
           lieux.forEach(l => {
-            const bLieu = calculerBudgetLieu(l);
+            const bLieu = getBudgetLieu(l);
             totalSalaires += bLieu.salaires;
             totalExploitation += bLieu.exploitation;
             totalAmortissements += bLieu.amortissements;
@@ -1486,7 +1122,7 @@ const BudgetTool = () => {
           <div className="mt-6 pt-6 border-t border-white/20">
             <div className="text-right">
               <span className="text-sm text-teal-300">Budget Direction Annuel:</span>
-              <span className="text-2xl font-black ml-3">{Math.round(calculerBudgetDirection().total).toLocaleString()} €</span>
+              <span className="text-2xl font-black ml-3">{Math.round(getBudgetDirection().total).toLocaleString()} €</span>
             </div>
           </div>
         </div>
@@ -1494,7 +1130,7 @@ const BudgetTool = () => {
         {/* Lieux de vie */}
         <div className="space-y-8">
           {lieux.map((lieu, lieuIndex) => {
-            const budgetLieu = calculerBudgetLieu(lieu);
+            const budgetLieu = getBudgetLieu(lieu);
             
             let totalJoursGlobal = 0;
             lieux.forEach(l => {
@@ -1502,7 +1138,7 @@ const BudgetTool = () => {
               totalJoursGlobal += jours;
             });
             const proportionLieu = totalJoursGlobal > 0 ? budgetLieu.joursAnnuels / totalJoursGlobal : 0;
-            const partSiege = calculerBudgetDirection().total * proportionLieu;
+            const partSiege = getBudgetDirection().total * proportionLieu;
             const budgetAvecSiege = budgetLieu.total + partSiege;
             const prixJourAvecSiege = budgetLieu.joursAnnuels > 0 ? budgetAvecSiege / budgetLieu.joursAnnuels : 0;
             

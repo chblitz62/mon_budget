@@ -56,6 +56,18 @@ npm run dev
 - Lucide React (icônes)
 - SheetJS (export Excel)
 
+## Structure du projet
+
+```
+src/
+├── App.jsx              # Composant principal de l'application
+├── main.jsx             # Point d'entrée React
+├── index.css            # Styles Tailwind
+└── utils/
+    ├── constants.js     # Constantes et valeurs par défaut
+    └── calculations.js  # Fonctions de calcul (salaires, amortissements, provisions, BFR)
+```
+
 ## Structure des données
 
 ### Paramètres globaux
