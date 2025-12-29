@@ -64,7 +64,7 @@ const BudgetTool = () => {
 
   // Wrappers pour les fonctions de calcul avec les données actuelles
   const getBudgetDirection = () => calculerBudgetDirection(direction);
-  const getBudgetLieu = (lieu) => getBudgetLieu(lieu);
+  const getBudgetLieu = (lieu) => calculerBudgetLieu(lieu);
   const getProvisions = () => calculerProvisions(direction, lieux, globalParams);
   const getBFR = () => calculerBFR(direction, lieux, globalParams);
   const summary3Ans = calculerSynthese3Ans(direction, lieux, globalParams);
