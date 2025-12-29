@@ -2,6 +2,12 @@
   <img src="logo.png" alt="AFERTES" width="300">
 </p>
 
+<p align="center">
+  <a href="https://github.com/chblitz62/mon_budget/actions/workflows/ci.yml">
+    <img src="https://github.com/chblitz62/mon_budget/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+</p>
+
 # Budget Prévisionnel - Protection de l'Enfance
 
 Application web de gestion de budget prévisionnel pour les structures d'accueil dans le secteur de la protection de l'enfance.
