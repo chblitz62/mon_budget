@@ -1300,12 +1300,88 @@ const BudgetTool = () => {
           ))}
         </div>
 
+        {/* Graphique de répartition du budget */}
+        {(() => {
+          const budgetDir = calculerBudgetDirection();
+          let totalSalaires = budgetDir.salaires;
+          let totalExploitation = budgetDir.chargesSiege;
+          let totalAmortissements = 0;
+          let totalInterets = 0;
+
+          lieux.forEach(l => {
+            const bLieu = calculerBudgetLieu(l);
+            totalSalaires += bLieu.salaires;
+            totalExploitation += bLieu.exploitation;
+            totalAmortissements += bLieu.amortissements;
+            totalInterets += bLieu.interets;
+          });
+
+          const total = totalSalaires + totalExploitation + totalAmortissements + totalInterets;
+          const pctSalaires = total > 0 ? (totalSalaires / total) * 100 : 0;
+          const pctExploitation = total > 0 ? (totalExploitation / total) * 100 : 0;
+          const pctAmortissements = total > 0 ? (totalAmortissements / total) * 100 : 0;
+          const pctInterets = total > 0 ? (totalInterets / total) * 100 : 0;
+
+          const data = [
+            { label: 'Masse salariale', value: totalSalaires, pct: pctSalaires, color: 'bg-blue-500' },
+            { label: 'Exploitation', value: totalExploitation, pct: pctExploitation, color: 'bg-teal-500' },
+            { label: 'Amortissements', value: totalAmortissements, pct: pctAmortissements, color: 'bg-orange-500' },
+            { label: 'Intérêts', value: totalInterets, pct: pctInterets, color: 'bg-red-500' }
+          ];
+
+          return (
+            <div className={`rounded-3xl shadow-lg border-2 p-6 mb-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200'}`}>
+              <h3 className={`text-lg font-black mb-4 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                Répartition du Budget Annuel
+              </h3>
+
+              {/* Barre de répartition */}
+              <div className="h-8 rounded-full overflow-hidden flex mb-4">
+                {data.map((d, i) => (
+                  <div
+                    key={i}
+                    className={`${d.color} transition-all duration-500`}
+                    style={{ width: `${d.pct}%` }}
+                    title={`${d.label}: ${d.pct.toFixed(1)}%`}
+                  />
+                ))}
+              </div>
+
+              {/* Légende */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {data.map((d, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className={`w-4 h-4 rounded ${d.color}`}></div>
+                    <div>
+                      <div className={`text-xs font-bold ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>{d.label}</div>
+                      <div className={`text-sm font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                        {Math.round(d.value).toLocaleString()} € <span className={`text-xs font-normal ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>({d.pct.toFixed(1)}%)</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div className={`mt-4 pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-slate-200'} flex justify-between items-center`}>
+                <span className={`font-bold ${darkMode ? 'text-gray-300' : 'text-slate-600'}`}>Budget Total Annuel</span>
+                <span className={`text-2xl font-black ${darkMode ? 'text-teal-400' : 'text-teal-600'}`}>{Math.round(total).toLocaleString()} €</span>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Direction & Siège */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 text-white rounded-3xl p-8 mb-8 shadow-xl print-page-break">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-black flex items-center gap-3">
-              <Building2 className="text-teal-400" size={28} /> Direction & Siège
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-black flex items-center gap-3">
+                <Building2 className="text-teal-400" size={28} /> Direction & Siège
+              </h2>
+              <span className="bg-teal-500/30 text-teal-200 px-3 py-1 rounded-lg text-sm font-bold">
+                {direction.personnel.reduce((sum, p) => sum + p.etp, 0).toFixed(1)} ETP
+              </span>
+            </div>
             <div className="flex gap-2 no-print">
               <button 
                 onClick={() => setDirection({...direction, personnel: [...direction.personnel, { id: Date.now(), titre: 'Nouveau poste', etp: 1, salaire: 2500, segur: true }]})}
@@ -1445,6 +1521,9 @@ const BudgetTool = () => {
                       </span>
                       <span className="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
                         {Math.round(budgetAvecSiege).toLocaleString()} € / an
+                      </span>
+                      <span className="bg-blue-100 text-blue-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm">
+                        {lieu.personnel.reduce((sum, p) => sum + p.etp, 0).toFixed(1)} ETP
                       </span>
                       <span className="bg-slate-100 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm">
                         Siège: {Math.round(partSiege).toLocaleString()} € ({(proportionLieu * 100).toFixed(1)}%)
@@ -1681,6 +1760,10 @@ const BudgetTool = () => {
                       ))}
                     </div>
                     <div className="mt-4 pt-4 border-t border-teal-200">
+                      <div className="flex justify-between text-sm font-bold mb-1">
+                        <span className="text-slate-700">Total ETP:</span>
+                        <span className="text-teal-600">{lieu.personnel.reduce((sum, p) => sum + p.etp, 0).toFixed(1)} ETP</span>
+                      </div>
                       <div className="flex justify-between text-sm font-bold">
                         <span className="text-slate-700">Masse salariale:</span>
                         <span className="text-slate-800">{Math.round(budgetLieu.salaires).toLocaleString()} €</span>
