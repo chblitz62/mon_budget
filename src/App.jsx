@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, DollarSign, Save, Upload, Printer, Moon, Sun } from 'lucide-react';
+import { Plus, Trash2, Download, Building2, Users, Landmark, Settings, Calendar, TrendingUp, Euro, Save, Upload, Printer, Moon, Sun } from 'lucide-react';
 
 // Import des constantes et valeurs par défaut
 import {
@@ -1039,7 +1039,7 @@ const BudgetTool = () => {
                   value={direction.loyer}
                   onChange={(e) => setDirection({...direction, loyer: validerMontant(e.target.value)})}
                 />
-                <DollarSign className="text-teal-300" size={20} />
+                <Euro className="text-teal-300" size={20} />
               </div>
             </div>
             <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
@@ -1052,7 +1052,7 @@ const BudgetTool = () => {
                   value={direction.charges}
                   onChange={(e) => setDirection({...direction, charges: validerMontant(e.target.value)})}
                 />
-                <DollarSign className="text-teal-300" size={20} />
+                <Euro className="text-teal-300" size={20} />
               </div>
             </div>
             <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
@@ -1065,7 +1065,7 @@ const BudgetTool = () => {
                   value={direction.autresCharges}
                   onChange={(e) => setDirection({...direction, autresCharges: validerMontant(e.target.value)})}
                 />
-                <DollarSign className="text-teal-300" size={20} />
+                <Euro className="text-teal-300" size={20} />
               </div>
             </div>
           </div>
