@@ -14,6 +14,12 @@ Application web de gestion de budget prévisionnel pour les structures d'accueil
 
 **[Accéder à l'application](https://mon-budget-kappa.vercel.app)**
 
+## Aperçu
+
+<p align="center">
+  <img src="screenshots/screenshot-light.png" alt="Aperçu de l'application" width="100%">
+</p>
+
 ## Fonctionnalités
 
 ### Gestion budgétaire
