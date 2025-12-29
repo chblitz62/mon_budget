@@ -42,8 +42,13 @@ const BudgetTool = () => {
   const [direction, setDirection] = useState(() => loadFromStorage('budget_direction', defaultDirection));
   const [lieux, setLieux] = useState(() => loadFromStorage('budget_lieux', defaultLieux));
 
-  // Mode sombre persistant
-  const [darkMode, setDarkMode] = useState(() => loadFromStorage('budget_darkMode', false));
+  // Mode sombre persistant (support paramètre URL ?dark=true)
+  const [darkMode, setDarkMode] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('dark') === 'true') return true;
+    if (urlParams.get('dark') === 'false') return false;
+    return loadFromStorage('budget_darkMode', false);
+  });
 
   // Sauvegarde automatique dans localStorage
   useEffect(() => {

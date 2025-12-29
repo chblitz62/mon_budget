@@ -16,8 +16,14 @@ Application web de gestion de budget prévisionnel pour les structures d'accueil
 
 ## Aperçu
 
+### Mode clair
 <p align="center">
-  <img src="screenshots/screenshot-light.png" alt="Aperçu de l'application" width="100%">
+  <img src="screenshots/screenshot-light.png" alt="Mode clair" width="100%">
+</p>
+
+### Mode sombre
+<p align="center">
+  <img src="screenshots/screenshot-dark.png" alt="Mode sombre" width="100%">
 </p>
 
 ## Fonctionnalités
